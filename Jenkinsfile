@@ -1,50 +1,32 @@
 pipeline {
     agent any
-
     tools {
-        maven "Maven3"
-        jdk "JDK21"
+        maven "MAVEN"
+        jdk "JDK"
     }
-
     stages {
-
-        stage('Initialize') {
+        stage('Initialize'){
             steps {
-                echo "PATH = ${M2_HOME}/bin:${PATH}"
-                echo "M2_HOME = /opt/maven"
+                bat 'echo PATH = %PATH%'
+                bat 'echo M2_HOME = C:\\maven'
             }
         }
 
-        stage('Checkout') {
+        stage('Build'){
             steps {
-                git branch: 'main',
-                credentialsId: 'github-token',
-                url: 'https://github.com/Heramb1221/devops-p-3'
+                dir('C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\demopipelinetask\\my-app') {
+                    bat 'mvn -B -DskipTests clean package'
+                }
             }
         }
-
-        stage('Build') {
-            steps {
-                sh 'mvn -B -DskipTests clean package'
-            }
-        }
-
     }
 
     post {
         always {
             junit(
                 allowEmptyResults: true,
-                testResults: '**/target/surefire-reports/*.xml'
+                testResults: '**/test-reports/*.xml'
             )
-        }
-
-        success {
-            echo 'Build completed successfully!'
-        }
-
-        failure {
-            echo 'Build failed!'
         }
     }
 }
